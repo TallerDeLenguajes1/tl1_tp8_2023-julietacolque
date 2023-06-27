@@ -1,13 +1,13 @@
 ﻿using Tareas;
-
+using System.Text;
 internal class Program
-{   
-    
+{
+
     private static void Main(string[] args)
     {
         var ListaPendientes = new List<Tarea>();
         var ListaRealizadas = new List<Tarea>();
-       
+
 
         // System.Console.WriteLine("----------LISTA TAREAS----------");
         CargarNTareas(ListaPendientes, 10);
@@ -24,12 +24,43 @@ internal class Program
         //  System.Console.WriteLine(numero2);
 
         ///BUSCAR TAREA POR DECRIPCION 
-  
-        System.Console.WriteLine(">>>>>>>>TAREA POR DESCRIPCION>>>>>>>>>>");
-        System.Console.WriteLine("Escriba la descripcion de la tarea buscada");
-        var descripcion = Console.ReadLine();
-        BuscarTarea(ListaPendientes, descripcion);
 
+        // System.Console.WriteLine(">>>>>>>>TAREA POR DESCRIPCION>>>>>>>>>>");
+        // System.Console.WriteLine("Escriba la descripcion de la tarea buscada");
+        // var descripcion = Console.ReadLine();
+        // BuscarTarea(ListaPendientes, descripcion);
+
+        // string miArchivo = @"D:\Facultad\Taller I\ArchivoPrueba.txt";
+        // string lineaDePrueba = "\n lalalalalaa";
+
+        // string textoArchivo = File.ReadAllText(miArchivo);
+        // Console.WriteLine(textoArchivo);
+
+        // StreamWriter sw  = new StreamWriter(miArchivo);
+        // sw.WriteLine(lineaDePrueba);
+        // sw.Close();
+        // System.Console.WriteLine("Horas trabajadas: " + HorasTrabajadas(ListaRealizadas));
+        // RegistroHorasTrabajadas("horasTrabajadas.txt", ListaRealizadas);
+
+        //ARCHIVO CSV
+
+        string[] listadoArchivos = ObtenerArregloDeArchivos();
+        //NECESITO QUITAR .\ 
+        listadoArchivos = QuitarCaracteres(listadoArchivos);
+        string path = "index.csv";
+
+        if(!File.Exists(path)){
+            CrearArchivoCsv(path);
+        }
+
+        for (int i = 0; i < listadoArchivos.Length; i++)
+        {
+            string[] arregloSplit = listadoArchivos[i].Split(".");
+            string cadena = i +";"+arregloSplit[0] + ";" + arregloSplit[1];
+            EscribirCsv(path,cadena);
+        }
+        
+        
 
     }
     public static void MostrarTarea(Tarea tarea)
@@ -48,11 +79,11 @@ internal class Program
         Random rnd2 = new Random();
         Array valores = Enum.GetValues(typeof(Estado));
         Array descr = Enum.GetValues(typeof(Descripciones));
-        
-        
+
+
         tarea.Id = indice;
         tarea.Duracion = rnd.Next(1, 100);
-        tarea.Descripcion =(Descripciones)descr.GetValue(Des.Next(0,8));
+        tarea.Descripcion = (Descripciones)descr.GetValue(Des.Next(0, 8));
         tarea.Estado = (Estado)valores.GetValue(rnd2.Next(0, 2));
         return tarea;
 
@@ -110,5 +141,59 @@ internal class Program
 
 
     }
-}
 
+    public static int HorasTrabajadas(List<Tarea> ListaRealizadas)
+    {
+
+        int suma = 0;
+        foreach (var tarea in ListaRealizadas)
+        {
+            suma += tarea.Duracion;
+        }
+        return suma;
+    }
+
+    public static void RegistroHorasTrabajadas(string path, List<Tarea> ListaRealizadas)
+
+    {
+
+
+        // using (FileStream archivo = new FileStream(path, FileMode.Create))
+        // {
+            using(StreamWriter streamW = new StreamWriter(path, true))
+            {
+                streamW.WriteLine("Horas trabajadas: " + HorasTrabajadas(ListaRealizadas).ToString());
+                streamW.Close();
+            }
+        // }
+    }
+
+    public static string[] ObtenerArregloDeArchivos(){
+
+        string[] listadoArchivos = Directory.GetFiles(".");
+        return listadoArchivos;
+    }
+
+    public static string[] QuitarCaracteres(string[] listadoArchivos){
+        for (int i = 0; i < listadoArchivos.Length; i++)
+        {
+            listadoArchivos[i] = listadoArchivos[i].Remove(0,2);
+        }
+        return listadoArchivos;
+    }
+
+    public static void CrearArchivoCsv(string path){
+
+        using ( var archivo = new FileStream(path,FileMode.Create))
+        {
+            
+        }
+    }
+
+    public static void EscribirCsv(string path,string cadena){
+        using (var sw = new StreamWriter(path,true))
+        {
+            sw.WriteLine(cadena);
+        }
+    }
+}
